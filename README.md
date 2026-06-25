@@ -1,20 +1,49 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# KMF PIRLI – Minifudbal klub Novi Sad
 
-# Run and deploy your AI Studio app
+Kompletna mobilna aplikacija za KMF Pirli – prikaz utakmica, tabele, igrača, statistike i rezultata.  
+Napravljena sa **Next.js 15** i **Tailwind CSS**, optimizovana za mobilne uređaje.
 
-This contains everything you need to run your app locally.
+🔗 **Live:** https://kmf-pirli.vercel.app  
+📷 **Instagram:** [@kmfpirli](https://instagram.com/kmfpirli)
 
-View your app in AI Studio: https://ai.studio/apps/17fe513c-4d6d-4412-983d-e374164d5bbb
+---
 
-## Run Locally
+## 🚀 Šta ova aplikacija radi
 
-**Prerequisites:**  Node.js
+- **Početna stranica** – sledeća utakmica, forma tima, brzi linkovi
+- **Igrači** – pregled svih igrača sa statistikama (golovi, asistencije, kartoni, MVP)
+- **Rezultati** – lista svih utakmica sa detaljnim prikazom (timeline, strelci, asistencije, kartoni, MVP, početni sastavi)
+- **Tabela** – kompletna tabela lige sa sortiranjem i fiksnim kolonama (optimizovano za mobile)
+- **Footer navigacija** – uvek vidljiva na dnu ekrana
 
+---
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## 📁 Struktura podataka
+
+Svi podaci su **statički** i nalaze se u `data/` folderu:
+
+## Pokretanje lokalno
+
+**Potrebno:** Node.js 18+
+
+1. Instaliraj zavisnosti:
+
+```bash
+   npm install
+```
+
+2. Pokreni dev server:
+
+```bash
+   npm run dev
+```
+
+3. Otvori [http://localhost:3000](http://localhost:3000)
+
+## Deploy
+
+Aplikacija je deployovana na Vercel: [kmf-pirli.vercel.app](https://kmf-pirli.vercel.app)
+
+## Autor
+
+**Srđan Vasić**

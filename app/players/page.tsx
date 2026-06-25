@@ -1,74 +1,149 @@
-import React from 'react';
-import connectToDatabase from '@/lib/db/mongoose.tsx';
-import Player from '@/lib/model/Player.tsx';
-import PlayerFilter from '@/components/players/PlayerFilter.tsx';
-import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
+"use client";
 
-export const revalidate = 60; // Cache for 60 seconds
+import React, { useState, useMemo } from "react";
+import { Search, Users, Shield, Swords, Target, Sparkles } from "lucide-react";
+import { players, Player } from "@/data/players";
 
-export default async function PlayersPage() {
-  let players: any[] = [];
+type Position = "SVI" | "GOLMAN" | "ODBRANA" | "VEZNI" | "NAPAD";
 
-  try {
-    await connectToDatabase();
-    players = await Player.find({ isActive: true })
-      .sort({ 'stats.goals': -1 })
-      .lean();
-  } catch (err) {
-    console.error('Greška pri učitavanju igrača:', err);
-  }
+export default function PlayersPage() {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedPosition, setSelectedPosition] = useState<Position>("SVI");
 
-  // Format database players into plain objects for React
-  let plainPlayers = players.map(p => ({
-    name: p.name,
-    slug: p.slug,
-    number: p.number,
-    position: p.position,
-    photo: p.photo || '',
-    stats: {
-      goals: p.stats?.goals || 0,
-      appearances: p.stats?.appearances || 0,
-    }
-  }));
+  const filteredPlayers = useMemo(() => {
+    return players.filter((p) => {
+      // Filtriranje po poziciji
+      if (selectedPosition !== "SVI") {
+        const posMap: Record<string, string> = {
+          GOLMAN: "Golman",
+          ODBRANA: "Odbrana",
+          VEZNI: "Vezni",
+          NAPAD: "Napadač",
+        };
+        if (p.position !== posMap[selectedPosition]) return false;
+      }
 
-  // Handcrafted fallback player profile rosters if the database hasn't been seeded yet
-  if (plainPlayers.length === 0) {
-    plainPlayers = [
-      { name: 'Srdjan Popović', slug: 'srdjan-popovic', number: 10, position: 'Forward', photo: '', stats: { goals: 18, appearances: 14 } },
-      { name: 'Nikola Milisavljević', slug: 'nikola-milisavljevic', number: 7, position: 'Midfielder', photo: '', stats: { goals: 12, appearances: 14 } },
-      { name: 'Marko Juran', slug: 'marko-juran', number: 8, position: 'Midfielder', photo: '', stats: { goals: 9, appearances: 12 } },
-      { name: 'Igor Pavlović', slug: 'igor-pavlovic', number: 9, position: 'Forward', photo: '', stats: { goals: 7, appearances: 13 } },
-      { name: 'Milan Nedić', slug: 'milan-nedic', number: 5, position: 'Defender', photo: '', stats: { goals: 5, appearances: 11 } },
-      { name: 'Stefan Lazarević', slug: 'stefan-lazarevic', number: 12, position: 'Goalkeeper', photo: '', stats: { goals: 0, appearances: 14 } },
-      { name: 'Dragan Tošić', slug: 'dragan-tosic', number: 4, position: 'Defender', photo: '', stats: { goals: 3, appearances: 10 } },
-      { name: 'Nemanja Vujić', slug: 'nemanja-vujic', number: 11, position: 'Forward', photo: '', stats: { goals: 4, appearances: 9 } },
-    ];
-  }
+      // Pretraga po imenu ili broju
+      if (searchTerm.trim()) {
+        const term = searchTerm.toLowerCase().trim();
+        const nameMatch = p.name.toLowerCase().includes(term);
+        const numberMatch = p.number ? String(p.number).includes(term) : false;
+        if (!nameMatch && !numberMatch) return false;
+      }
+
+      return true;
+    });
+  }, [searchTerm, selectedPosition]);
+
+  const positions: Position[] = ["SVI", "GOLMAN", "ODBRANA", "VEZNI", "NAPAD"];
+  const positionIcons = {
+    SVI: <Users size={14} />,
+    GOLMAN: <Shield size={14} />,
+    ODBRANA: <Shield size={14} />,
+    VEZNI: <Swords size={14} />,
+    NAPAD: <Target size={14} />,
+  };
 
   return (
-    <div className="flex-grow flex flex-col bg-[#0B1220] pb-12 w-full">
-      {/* Page Header */}
-      <div className="py-6 px-5 bg-[#111827] border-b border-slate-700/60 sticky top-0 z-40 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link href="/" className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors">
-            <ChevronLeft size={20} />
-          </Link>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl font-black text-white uppercase tracking-tight">Igrači</h1>
-            <span className="bg-blue-600/10 text-blue-400 border border-blue-650/20 px-2 py-0.5 rounded-full text-xs font-black font-mono">
-              {plainPlayers.length}
-            </span>
+    <div className="min-h-screen bg-[#0B1220] text-white p-4">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-6">
+          <Users size={28} className="text-blue-400" />
+          <div>
+            <h1 className="text-2xl font-black uppercase tracking-wider">
+              IGRAČI
+            </h1>
+            <p className="text-xs text-slate-400 font-mono">
+              ROSTER • SEZONA 2026/2027
+            </p>
           </div>
         </div>
-        <span className="text-[10px] bg-slate-800 text-slate-400 tracking-widest font-extrabold uppercase px-2 py-1 rounded">
-          ROSTER
-        </span>
-      </div>
 
-      {/* Main filter container */}
-      <div className="px-4 mt-6">
-        <PlayerFilter initialPlayers={plainPlayers} />
+        {/* Search */}
+        <div className="relative mb-4">
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
+            size={16}
+          />
+          <input
+            type="text"
+            placeholder="Pretraži igrača po imenu ili broju..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-[#1E293B] border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500/50 transition-colors"
+          />
+        </div>
+
+        {/* Position filters */}
+        <div className="flex flex-wrap gap-1.5 mb-4">
+          {positions.map((pos) => (
+            <button
+              key={pos}
+              onClick={() => setSelectedPosition(pos)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all ${
+                selectedPosition === pos
+                  ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20"
+                  : "bg-[#1E293B] text-slate-400 hover:text-white hover:bg-[#2A3A4A] border border-slate-800"
+              }`}
+            >
+              {positionIcons[pos]}
+              {pos === "SVI" ? "SVI" : pos}
+            </button>
+          ))}
+        </div>
+
+        {/* Results count */}
+        <div className="text-[10px] text-slate-500 font-mono mb-3">
+          Rezultati pretrage:{" "}
+          <span className="text-white font-bold">{filteredPlayers.length}</span>{" "}
+          igrača
+        </div>
+
+        {/* Player grid */}
+        {filteredPlayers.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {filteredPlayers.map((p) => (
+              <div
+                key={p.id}
+                className="bg-[#1E293B]/50 border border-slate-800 rounded-xl p-3 hover:bg-[#2A3A4A] hover:border-slate-700 transition-all"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-[#0B1220] border border-slate-800 rounded-full flex items-center justify-center text-sm font-black text-blue-400">
+                      {p.number || "?"}
+                    </div>
+                    <div>
+                      <p className="text-sm font-bold text-white">{p.name}</p>
+                      <p className="text-[10px] text-slate-400 uppercase font-medium">
+                        {p.position}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
+                      <span>⚽ {p.stats.goals}</span>
+                      <span>🅰 {p.stats.assists}</span>
+                      {p.stats.mvpCount > 0 && (
+                        <span className="text-yellow-400">
+                          ★ {p.stats.mvpCount}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-[#1E293B]/30 border border-slate-800 rounded-xl p-8 text-center">
+            <div className="text-4xl mb-3">🔍</div>
+            <p className="text-sm font-bold text-white">NEMA REZULTATA</p>
+            <p className="text-xs text-slate-400">
+              Nije pronađen nijedan igrač za zadatu pretragu.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

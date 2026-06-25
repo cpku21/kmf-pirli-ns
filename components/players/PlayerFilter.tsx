@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import React, { useState, useMemo } from 'react';
-import PlayerGrid from '@/components/players/PlayerGrid.tsx';
-import { Search } from 'lucide-react';
+import React, { useState, useMemo } from "react";
+import PlayerGrid from "@/components/players/PlayerGrid";
+import { Search } from "lucide-react";
 
 interface Player {
   name: string;
   slug: string;
   number: number;
-  position: 'Goalkeeper' | 'Defender' | 'Midfielder' | 'Forward' | string;
+  position: "Goalkeeper" | "Defender" | "Midfielder" | "Forward" | string;
   photo?: string;
   stats: {
     goals: number;
@@ -21,26 +21,30 @@ interface PlayerFilterProps {
 }
 
 export default function PlayerFilter({ initialPlayers }: PlayerFilterProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [activeTab, setActiveTab] = useState<'all' | 'Goalkeeper' | 'Defender' | 'Midfielder' | 'Forward'>('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [activeTab, setActiveTab] = useState<
+    "all" | "Goalkeeper" | "Defender" | "Midfielder" | "Forward"
+  >("all");
 
   const tabs = [
-    { id: 'all', label: 'Svi' },
-    { id: 'Goalkeeper', label: 'Golman' },
-    { id: 'Defender', label: 'Odbrana' },
-    { id: 'Midfielder', label: 'Vezni' },
-    { id: 'Forward', label: 'Napad' },
+    { id: "all", label: "Svi" },
+    { id: "Goalkeeper", label: "Golman" },
+    { id: "Defender", label: "Odbrana" },
+    { id: "Midfielder", label: "Vezni" },
+    { id: "Forward", label: "Napad" },
   ] as const;
 
   const filteredPlayers = useMemo(() => {
     return initialPlayers.filter((player) => {
       // 1. Position match
-      const positionMatch = activeTab === 'all' || player.position === activeTab;
-      
+      const positionMatch =
+        activeTab === "all" || player.position === activeTab;
+
       // 2. Search match
       const stringToSearch = player.name.toLowerCase();
-      const searchMatch = stringToSearch.includes(searchTerm.toLowerCase()) || 
-                          player.number.toString().includes(searchTerm);
+      const searchMatch =
+        stringToSearch.includes(searchTerm.toLowerCase()) ||
+        player.number.toString().includes(searchTerm);
 
       return positionMatch && searchMatch;
     });
@@ -50,7 +54,10 @@ export default function PlayerFilter({ initialPlayers }: PlayerFilterProps) {
     <div id="player-filterable-container" className="space-y-6">
       {/* Search Input Box */}
       <div className="relative">
-        <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+        <Search
+          size={16}
+          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+        />
         <input
           type="text"
           placeholder="Pretraži igrača po imenu ili broju..."
@@ -69,8 +76,8 @@ export default function PlayerFilter({ initialPlayers }: PlayerFilterProps) {
             onClick={() => setActiveTab(tab.id)}
             className={`px-4 py-2 text-xs font-bold rounded-lg transition-all uppercase tracking-wider shrink-0 whitespace-nowrap ${
               activeTab === tab.id
-                ? 'bg-blue-600 text-white shadow-md'
-                : 'bg-transparent text-slate-400 hover:text-white hover:bg-slate-800/30'
+                ? "bg-blue-600 text-white shadow-md"
+                : "bg-transparent text-slate-400 hover:text-white hover:bg-slate-800/30"
             }`}
           >
             {tab.label}
@@ -82,7 +89,8 @@ export default function PlayerFilter({ initialPlayers }: PlayerFilterProps) {
       <div className="flex items-center justify-between text-[11px] text-slate-400/90 font-mono">
         <span>Rezultati pretrage:</span>
         <span className="font-bold text-white bg-slate-800 px-2 py-0.5 rounded">
-          {filteredPlayers.length} {filteredPlayers.length === 1 ? 'igrač' : 'igrača'}
+          {filteredPlayers.length}{" "}
+          {filteredPlayers.length === 1 ? "igrač" : "igrača"}
         </span>
       </div>
 
